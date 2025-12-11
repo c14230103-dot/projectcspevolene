@@ -8,21 +8,36 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch('/api/products');
-        const data = await res.json();
-        setProducts(data);
-      } catch (err) {
-        console.error('Gagal memuat produk:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch('/api/products');
+      const data = await res.json();
 
-    fetchProducts();
-  }, []);
+      if (!res.ok) {
+        console.error('API /api/products error:', data);
+        setProducts([]);
+        return;
+      }
+
+      if (!Array.isArray(data)) {
+        console.error('Data produk bukan array:', data);
+        setProducts([]);
+        return;
+      }
+
+      setProducts(data);
+    } catch (err) {
+      console.error('Gagal memuat produk:', err);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProducts();
+}, []);
+
 
   return (
     <div>
