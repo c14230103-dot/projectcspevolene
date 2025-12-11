@@ -98,7 +98,7 @@ useEffect(() => {
 
         {loading ? (
           <p>Memuat produk...</p>
-        ) : products.length === 0 ? (
+        ) : !Array.isArray(products) || products.length === 0 ? (
           <p>Belum ada produk yang terdaftar. Silakan tambahkan dari dashboard admin.</p>
         ) : (
           <div className="grid-products">
