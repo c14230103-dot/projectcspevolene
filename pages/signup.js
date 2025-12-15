@@ -8,24 +8,27 @@ export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [loading, setLoading] = useState(false);
 
- // pages/signup.js
-const handleSignup = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    await signUp(email, password);
-    alert('Sign up berhasil! Silakan cek email jika perlu verifikasi.');
-    router.push('/');
-  } catch (err) {
-    alert(err.message);   // <<-- ini yang akan menampilkan "Email sudah terdaftar..."
-  } finally {
-    setLoading(false);
-  }
-};
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data, error } = await signUp(email, password);
 
+      if (error) throw error;
+
+      alert(
+        'Registrasi berhasil!\nSilakan cek email kamu untuk verifikasi sebelum login.'
+      );
+
+      router.push('/login');
+    } catch (err) {
+      alert(err.message || 'Terjadi kesalahan saat sign up.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="auth-page">

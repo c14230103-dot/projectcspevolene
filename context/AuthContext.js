@@ -52,64 +52,63 @@ export function AuthProvider({ children }) {
       setRole('user'); // fallback
     }
   };
-// context/AuthContext.js
 
-const signUp = async (email, password) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+  // 🚫 TIDAK auto-login setelah sign up
+  const signUp = async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-  // 1) Kalau Supabase kasih error (misal: "User already registered")
-  if (error) {
-    if (
-      error.message &&
-      error.message.toLowerCase().includes('user already registered')
-    ) {
+    // 1) Kalau Supabase kasih error (misal: "User already registered")
+    if (error) {
+      if (
+        error.message &&
+        error.message.toLowerCase().includes('user already registered')
+      ) {
+        throw new Error('Email sudah terdaftar. Silakan login.');
+      }
+
+      // error lain (password kurang, dsb.)
+      throw error;
+    }
+
+    // 2) Kalau user null → anggap ada masalah di signup
+    if (!data || !data.user) {
+      throw new Error(
+        'Terjadi masalah saat membuat akun. Silakan cek email atau coba lagi.'
+      );
+    }
+
+    const newUser = data.user;
+
+    // 3) SUPABASE TRICK:
+    //    Kalau signup kedua kali dengan email yang sama,
+    //    Supabase biasanya mengembalikan user dengan identities = []
+    //    → artinya email sudah pernah terdaftar.
+    const identities = Array.isArray(newUser.identities)
+      ? newUser.identities
+      : [];
+
+    if (identities.length === 0) {
+      // Jangan buat profile, jangan anggap akun baru
       throw new Error('Email sudah terdaftar. Silakan login.');
     }
 
-    // error lain (password kurang, dsb.)
-    throw error;
-  }
+    // 4) Buat profile default user
+    const { error: profileError } = await supabase.from('profiles').insert({
+      id: newUser.id,
+      role: 'user',
+    });
 
-  // 2) Kalau user null → anggap email sudah dipakai / tidak valid
-  if (!data || !data.user) {
-    throw new Error(
-      'Email sudah terdaftar. Silakan login atau verifikasi email.'
-    );
-  }
+    if (profileError) {
+      console.error('Gagal membuat profile:', profileError);
+    }
 
-  const newUser = data.user;
-
-  // 3) SUPABASE TRICK:
-  //    Kalau signup kedua kali dengan email yang sama,
-  //    Supabase biasanya mengembalikan user.dan identities = []
-  //    → artinya email sudah pernah terdaftar.
-  const identities = Array.isArray(newUser.identities)
-    ? newUser.identities
-    : [];
-
-  if (identities.length === 0) {
-    // Jangan buat profile, jangan anggap akun baru
-    throw new Error('Email sudah terdaftar. Silakan login.');
-  }
-
-  // 4) Buat profile default user
-  const { error: profileError } = await supabase.from('profiles').insert({
-    id: newUser.id,
-    role: 'user',
-  });
-
-  if (profileError) {
-    console.error('Gagal membuat profile:', profileError);
-  }
-
-  setUser(newUser);
-  setRole('user');
-  return newUser;
-};
-
+    // ❌ JANGAN setUser / setRole di sini
+    // User baru harus login manual setelah verifikasi email
+    return newUser;
+  };
 
   const signIn = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -117,6 +116,7 @@ const signUp = async (email, password) => {
       password,
     });
     if (error) throw error;
+
     const currentUser = data.user;
     setUser(currentUser);
     if (currentUser) {
@@ -125,13 +125,12 @@ const signUp = async (email, password) => {
     return currentUser;
   };
 
-const signOut = async () => {
-  await supabase.auth.signOut();
-  setUser(null);
-  setRole('guest');
-  location.reload(); 
-};
-
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setRole('guest');
+    location.reload();
+  };
 
   return (
     <AuthContext.Provider
