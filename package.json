@@ -10,15 +10,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.86.0",
-<<<<<<< HEAD
-    "next": "16.0.7",
-    "react": "19.x.x",
-    "react-dom": "19.x.x",
-=======
     "next": "^16.0.8",
     "react": "19.2.0",
     "react-dom": "19.2.0"
->>>>>>> 74cde70 (chore: upgrade Next.js to 16.0.7 (security fix))
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
