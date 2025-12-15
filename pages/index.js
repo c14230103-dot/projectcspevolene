@@ -51,14 +51,14 @@ useEffect(() => {
           <p className="hero-subtitle">
             Evolene Official Replica adalah platform E-Commerce suplemen
             dengan katalog lengkap, pengelolaan stok real-time, dan simulasi
-            transaksi yang dirancang menyerupai toko resmi Evolene.
+            transaksi.
           </p>
 
         </div>
 
         <div className="hero-card">
           <div>
-            <div className="hero-card-title">QUALITY YOU CAN TRACK</div>
+            <div className="hero-card-title">FITUR</div>
             <div className="hero-card-content">
               Semua produk yang tampil di sini terkoneksi langsung dengan
               database: stok berkurang otomatis saat checkout, harga dan
